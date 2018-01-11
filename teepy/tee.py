@@ -2,7 +2,7 @@ import contextlib
 
 
 @contextlib.contextmanager
-def tee(input, *files, mode='w'):
+def tee(input, *files, mode='w', filter=None):
     '''Duplicates input stream to output stream and also to any files.
 
     Arguments:
@@ -16,12 +16,17 @@ def tee(input, *files, mode='w'):
 
     Examples:
     >>> import sys
-    >>> from teepy import teepy
-    >>> with teepy(sys.stdout, 'output.txt'), teepy(sys.stderr, 'error1.txt', 'error2.txt'):
-    ...     sys.stdout.write('This is a copy of stdout!\n')
-    ...     sys.stderr.write('This is a copy of stderr!\n')
+    >>> from teepy import tee
+    >>> def files_filter(text):
+    ...     lines = text.splitlines(keepends=True)
+    ...     return ''.join(line for line in lines if '\\n' in line)
     ...
-    This is a copy of stdout!
+    >>> with tee(sys.stdout, 'output.txt', filter=files_filter), tee(sys.stderr, 'error1.txt', 'error2.txt'):
+    ...     sys.stdout.write('[info]:stdout\\n[0%]\\r[50%]\\r[100%]\\r[info]:stdout\\n')
+    ...     sys.stderr.write('This is a copy of stderr!\\n')
+    ...
+    [info]:stdout
+    [info]:stdout
     This is a copy of stderr!
 
     '''
@@ -31,6 +36,8 @@ def tee(input, *files, mode='w'):
 
     def duplicate(data):
         original_write(data)
+        if filter:
+            data = filter(data)
         for f in file_list:
             f.write(data)
 
