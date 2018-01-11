@@ -29,10 +29,10 @@ def tee(input, *files, mode='w'):
     original_write = input.write
     file_list = [open(file, mode + input.mode[1:]) for file in files]
 
-    def duplicate(text):
-        original_write(text)
+    def duplicate(data):
+        original_write(data)
         for f in file_list:
-            f.write(text)
+            f.write(data)
 
     input.write = duplicate
     yield
