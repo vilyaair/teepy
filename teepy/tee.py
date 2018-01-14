@@ -13,20 +13,23 @@ def tee(input, *files, mode='w', filter=None):
 
     mode: An optional string that specifies the mode in which the files are opened.
     It defaults to 'w' for writing, and uses 'a' for appending.
+    
+    filter: A function of one argument that is used to filter data for files.
+    The default value is None (do not touch input data).
 
     Examples:
     >>> import sys
     >>> from teepy import tee
     >>> def files_filter(text):
     ...     lines = text.splitlines(keepends=True)
-    ...     return ''.join(line for line in lines if '\\n' in line)
+    ...     return ''.join(line for line in lines if line[-1] == '\\n')
     ...
     >>> with tee(sys.stdout, 'output.txt', filter=files_filter), tee(sys.stderr, 'error1.txt', 'error2.txt'):
-    ...     sys.stdout.write('[info]:stdout\\n[0%]\\r[50%]\\r[100%]\\r[info]:stdout\\n')
+    ...     sys.stdout.write('[info]: stdout\\n[0%]\\r[50%]\\r[100%]\\r[info]: stdout\\n')
     ...     sys.stderr.write('This is a copy of stderr!\\n')
     ...
-    [info]:stdout
-    [info]:stdout
+    [info]: stdout
+    [info]: stdout
     This is a copy of stderr!
 
     '''
